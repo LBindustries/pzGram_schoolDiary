@@ -14,22 +14,22 @@ bot = pzgram.Bot(apiKey.apiBot)
 
 def start_command(chat, message):
     chat.send('Hi, *'+message.sender.first_name+'*\n'
-              'Welcome to schoolDiaryBot, \nUse the keyboard to view all the possible commands\n'
-              'This is an [open-source bot](http://github.com/infopz/pzGram_schoolDiary) by @infopz\n'
-              'If you want more info about this bot visit [my site](http://infopz.hopto.org/schoolDiary/)',
+              'Welcome to schoolDiaryBot, \nUse the on-screen keyboard to view all the accepted commands\n'
+              'This is an [open-source project](http://github.com/infopz/pzGram_schoolDiary) created by @infopz\n'
+              'If you want to know more about this project visit [my website](http://infopz.hopto.org/schoolDiary/)',
               disable_preview=True)
 
 # START /new FUNCTION
 
 
 def new_test(chat, shared):
-    chat.send('Select a date:', reply_markup=shared['keyboards']['this_m_test'])
+    chat.send('Select a day:', reply_markup=shared['keyboards']['this_m_test'])
     shared['cache'] = {'conv_dict': shared['keyboards']['this_m_c']}
     shared['status'] = 'newTest'
 
 
 def new_homework(chat, shared):
-    chat.send('Select a date:', reply_markup=shared['keyboards']['days'])
+    chat.send('Select a day:', reply_markup=shared['keyboards']['days'])
     shared['cache'] = {'conv_dict': shared['keyboards']['days_c']}
     shared['status'] = 'newHW'
 
@@ -114,16 +114,16 @@ def manage_date(message, chat, shared):  # possible input status: newHW, newTest
     else:
         status = shared['status']
         if status == 'newHW':
-            chat.send('The day that you give me is not correct')
+            chat.send('The day that you gave me is not correct')
             new_homework(chat, shared)
         elif status == 'newTest':
-            chat.send('The day that you give me is not correct')
+            chat.send('The day that you gave me is not correct')
             new_test(chat, shared)
         elif status == 'editDate' or status == 'find2':
-            chat.send('The day that you give me is not correct, retry', reply_markup=shared['keyboards']['this_m_test'])
+            chat.send('The day that you gave me is not correct, retry', reply_markup=shared['keyboards']['this_m_test'])
             cache['conv_dict'] = shared['keyboards']['this_m_c']
         elif status == 'newVote2':
-            chat.send('The day that you give me is not correct, retry', reply_markup=shared['keyboards']['this_m_vote'])
+            chat.send('The day that you gave me is not correct, retry', reply_markup=shared['keyboards']['this_m_vote'])
             cache['conv_dict'] = shared['keyboards']['this_m_c']
     shared['k_hist'] = k_hist
     shared['c_hist'] = c_hist
@@ -147,14 +147,14 @@ def manage_subject(message, chat, shared):
             cache['subject'] = i
             break
     else:
-        chat.send('The subject that you chose is not correct, retry')
-        chat.send("Nice, now select the subject:", reply_markup=shared['keyboards']['subj'])
+        chat.send('The subject that you wrote down is unknown. Please retry.')
+        chat.send("Alright, alright! Now choose the subject.", reply_markup=shared['keyboards']['subj'])
     if shared['status'] == 'editSubj':
         set_new_subj(chat, cache, shared)
         return
-    s = 'Ok, last step, send me the notes about this homework:'
+    s = 'Almost there! Now send me some notes about this.'
     if shared['status'] == 'newTest2':
-        s = 'Ok, last step, send me the arguments of this test'
+        s = 'Almost there! Now send me the topics of the test'
     chat.send(s, no_keyboard=True)
     if shared['status'] == 'newHW2':
         shared['status'] = 'newHW3'
@@ -185,13 +185,13 @@ def manage_args_notes(message, chat, shared):
 def view_calendar(chat, shared):
     keyboard = pzgram.create_keyboard([['This Week', 'Next Week'], ['This Month', 'Next Month'], ['Other', 'Back\U0001F519']],
                                       one=True)
-    chat.send('Select a period', reply_markup=keyboard)
+    chat.send('Choose an interval of days.', reply_markup=keyboard)
     shared['status'] = 'view'
 
 
 def view_manage_date(message, chat, shared):
     if message.text == 'Back\U0001F519':
-        chat.send('Select a command:')
+        chat.send('Choose a command:')
         return
     start_date, stop_date = '', ''
     month_length = [00, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
@@ -213,7 +213,7 @@ def view_manage_date(message, chat, shared):
     if start_date != '' and stop_date != '':
         m, k, conv_dict = useful_function.view_tasks_between(start_date, stop_date)
         if m == '':
-            m = 'You have no tasks in this period, select another one'
+            m = 'You have no scheduled tasks in this interval, select another one.'
             keyboard = pzgram.create_keyboard(
                 [['This Week', 'Next Week'], ['This Month', 'Next Month'], ['Other', 'Back\U0001F519']], one=True)
             chat.send(m, reply_markup=keyboard)
@@ -229,7 +229,7 @@ def view_one(message, chat, shared):
         return
     cache = shared['cache']
     if message.text not in cache['conv_dict']:
-        chat.send('Error, please select another one', reply_markup=cache['comm_keyb'])
+        chat.send('An error occurred. Please try with another option.', reply_markup=cache['comm_keyb'])
         return
     row = cache['conv_dict'][message.text]
     if row[0] == 't':
@@ -280,7 +280,7 @@ def view_edit_one(message, chat, shared):
     cache = shared['cache']
     possible_options = ['Edit Date', 'Edit Subj', 'Edit Arg', 'Edit Notes', 'Completed\U00002611']
     if message.text not in possible_options:
-        chat.send('Error Command, try another', reply_markup=cache['keyb'])
+        chat.send('An error occurred. Please try with another option', reply_markup=cache['keyb'])
         return
     row = cache['row']
     if row[0] == 't':
@@ -299,7 +299,7 @@ def view_edit_one(message, chat, shared):
         shared['status'] = 'editDate'
     elif message.text == 'Edit Subj':
         keyboard = shared['keyboards']['subj']
-        chat.send('Select a new subject', reply_markup=keyboard)
+        chat.send('Choose a subject', reply_markup=keyboard)
         shared['status'] = 'editSubj'
     elif message.text == 'Edit Arg':
         if c_type == 'hw':
@@ -362,7 +362,7 @@ def set_new_notes(message, chat, shared):
 
 def find_command(chat, shared):
     keyboard = pzgram.create_keyboard([['Homeworks', 'Tests'], ['Both'], ['Menu\U0001F3B2', 'Back\U0001F519']], one=True)
-    chat.send('Select wich type of tasks you want to find:', reply_markup=keyboard)
+    chat.send('Select wich type of scheduled tasks you want to find:', reply_markup=keyboard)
     shared['cache'] = {}
     shared['status'] = 'find1'
 
@@ -388,7 +388,7 @@ def find_gave_result(chat, cache, shared):
     date = cache['date']
     test, hw = SQL_function.find_one_day(date)
     if not len(test) and not len(hw):  # if nothing
-        chat.send("You don't have nothing for this day")
+        chat.send("You don't have nothing to do for this day")
         return
     m = "Here's your commintments:\n"
     if len(test):
@@ -414,7 +414,7 @@ def find_gave_result(chat, cache, shared):
 def new_vote_command(chat, shared):
     shared['status'] = 'newVote'
     shared['cache'] = {}
-    chat.send('Write me the vote:', no_keyboard=True)
+    chat.send('Write me the mark:', no_keyboard=True)
 
 
 def new_vote_number(message, chat, shared):
